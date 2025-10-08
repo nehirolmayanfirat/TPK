@@ -2,10 +2,12 @@
 
 <img width="503" height="336" alt="image" src="https://github.com/user-attachments/assets/01765b6a-4c8e-4a32-8d18-7394bf294f2b" />
 
+
 TPK, Linux paket yöneticinizi Türkçe olarak kullanabilmenize olanak tanır.  
+
 APT, DNF, YUM, PACMAN, ZYPPER ve APK destekler.
 
-İlk versiyon hiçbir yerde yayınlanmadı, GitHub üzerinden yayınlanan ilk versiyon **2.0.0**’dır.
+(İlk versiyon hiçbir yerde yayınlanmadı, GitHub üzerinden yayınlanan ilk versiyon **2.0.0**’dır.)
 
 ---
 
