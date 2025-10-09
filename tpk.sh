@@ -3,7 +3,7 @@ set -euo pipefail
 
 # tpk, ilk sürüm. bulduğunuz hataları lütfen bildirib!
 
-readonly TPK_VERSION="2.0.0"
+readonly TPK_VERSION="2.0.1"
 readonly REQUIRED_BASH_VERSION=4
 
 if (( BASH_VERSINFO[0] < REQUIRED_BASH_VERSION )); then
@@ -173,7 +173,6 @@ logla() {
 normalize_komut() {
     local s="${1,,}"
     
-    
     s="${s//ı/i}"
     s="${s//ü/u}"
     s="${s//ö/o}"
@@ -196,19 +195,6 @@ paket_yoneticisini_bul() {
     done
     
     return 1
-}
-
-# gerçekten burayı okuyormusun? bu sevindirici!
-onay_bayragi() {
-    local pm="$1"
-    
-    (( OTOMATIK_ONAY == 0 )) && return
-    
-    case "$pm" in
-        apt|dnf|yum|zypper) printf "%s" "-y" ;;
-        pacman) printf "%s" "--noconfirm" ;;
-        apk) printf "%s" "--no-cache" ;;
-    esac
 }
 
 
@@ -440,36 +426,6 @@ case "$KOMUT" in
             exit 1
         fi
         
-        flag="$(onay_bayragi "$yonetici")"
-        
-        case "$yonetici" in
-            apt)
-                komut_dizisi=(apt install)
-                [[ -n "$flag" ]] && komut_dizisi+=("$flag")
-                komut_dizisi+=("$@")
-                ;;
-            dnf|yum)
-                komut_dizisi=("$yonetici" install)
-                [[ -n "$flag" ]] && komut_dizisi+=("$flag")
-                komut_dizisi+=("$@")
-                ;;
-            pacman)
-                komut_dizisi=(pacman -S)
-                [[ -n "$flag" ]] && komut_dizisi+=("$flag")
-                komut_dizisi+=("$@")
-                ;;
-            zypper)
-                komut_dizisi=(zypper install)
-                [[ -n "$flag" ]] && komut_dizisi+=("$flag")
-                komut_dizisi+=("$@")
-                ;;
-            apk)
-                komut_dizisi=(apk add)
-                [[ -n "$flag" ]] && komut_dizisi+=("$flag")
-                komut_dizisi+=("$@")
-                ;;
-        esac
-        
         EKRAN_METNI="Paket indiriliyor"
         
         if (( OTOMATIK_ONAY == 0 )); then
@@ -478,6 +434,24 @@ case "$KOMUT" in
                 exit 0
             fi
         fi
+        
+        case "$yonetici" in
+            apt)
+                komut_dizisi=(apt install -y "$@")
+                ;;
+            dnf|yum)
+                komut_dizisi=("$yonetici" install -y "$@")
+                ;;
+            pacman)
+                komut_dizisi=(pacman -S --noconfirm "$@")
+                ;;
+            zypper)
+                komut_dizisi=(zypper install -y "$@")
+                ;;
+            apk)
+                komut_dizisi=(apk add "$@")
+                ;;
+        esac
         
         komutu_calistir
         ;;
@@ -488,34 +462,6 @@ case "$KOMUT" in
             exit 1
         fi
         
-        flag="$(onay_bayragi "$yonetici")"
-        
-        case "$yonetici" in
-            apt)
-                komut_dizisi=(apt remove)
-                [[ -n "$flag" ]] && komut_dizisi+=("$flag")
-                komut_dizisi+=("$@")
-                ;;
-            dnf|yum)
-                komut_dizisi=("$yonetici" remove)
-                [[ -n "$flag" ]] && komut_dizisi+=("$flag")
-                komut_dizisi+=("$@")
-                ;;
-            pacman)
-                komut_dizisi=(pacman -Rns)
-                [[ -n "$flag" ]] && komut_dizisi+=("$flag")
-                komut_dizisi+=("$@")
-                ;;
-            zypper)
-                komut_dizisi=(zypper remove)
-                [[ -n "$flag" ]] && komut_dizisi+=("$flag")
-                komut_dizisi+=("$@")
-                ;;
-            apk)
-                komut_dizisi=(apk del "$@")
-                ;;
-        esac
-        
         EKRAN_METNI="Paket kaldırılıyor"
         
         if (( OTOMATIK_ONAY == 0 )); then
@@ -524,6 +470,24 @@ case "$KOMUT" in
                 exit 0
             fi
         fi
+        
+        case "$yonetici" in
+            apt)
+                komut_dizisi=(apt remove -y "$@")
+                ;;
+            dnf|yum)
+                komut_dizisi=("$yonetici" remove -y "$@")
+                ;;
+            pacman)
+                komut_dizisi=(pacman -Rns --noconfirm "$@")
+                ;;
+            zypper)
+                komut_dizisi=(zypper remove -y "$@")
+                ;;
+            apk)
+                komut_dizisi=(apk del "$@")
+                ;;
+        esac
         
         komutu_calistir
         ;;
@@ -541,9 +505,7 @@ case "$KOMUT" in
                 komutu_calistir || true
                 ;;
             pacman)
-                flag="$(onay_bayragi pacman)"
-                komut_dizisi=(pacman -Sy)
-                [[ -n "$flag" ]] && komut_dizisi+=("$flag")
+                komut_dizisi=(pacman -Sy --noconfirm)
                 EKRAN_METNI="Veritabanı güncelleniyor"
                 komutu_calistir
                 ;;
